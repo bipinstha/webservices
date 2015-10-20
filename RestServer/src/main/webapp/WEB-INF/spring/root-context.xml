@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:tx="http://www.springframework.org/schema/tx" 
+       xmlns:jpa="http://www.springframework.org/schema/data/jpa"
+       xsi:schemaLocation="
+      http://www.springframework.org/schema/beans 
+      http://www.springframework.org/schema/beans/spring-beans.xsd
+      http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
+      http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd
+      http://www.springframework.org/schema/data/jpa http://www.springframework.org/schema/data/jpa/spring-jpa.xsd">
+
+
+    <!-- Root Context: defines shared resources visible to all other web components -->
+    <jpa:repositories base-package="edu.mum.soaserver.repository" />
+
+    <bean
+        class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+        <property name="location">
+            <value>classpath:jdbc.properties</value>
+        </property>
+    </bean>
+<!--    <bean id="entityManager"
+          class="org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean">
+        <property name="dataSource" ref="dataSource" />
+        <property name="packagesToScan" value="edu.mum.soaserver.model" />
+        <property name="jpaVendorAdapter">
+            <bean class="org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter" />
+        </property>
+        <property name="jpaProperties"> 
+            <props> 
+                <prop key="hibernate.hbm2ddl.auto">update</prop>  
+                <prop key="hibernate.dialect">${db.databasePlatform}</prop> 
+            </props> 
+        </property> 
+    </bean>-->
+    <bean id="postgreEntityManager"
+          class="org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean">
+        <property name="dataSource" ref="postgreDataSource" />
+        <property name="packagesToScan" value="edu.mum.soaserver.model" />
+        <property name="jpaVendorAdapter">
+            <bean class="org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter" />
+        </property>
+        <property name="jpaProperties"> 
+            <props> 
+                <prop key="hibernate.hbm2ddl.auto">update</prop>  
+                <prop key="hibernate.dialect">${p.db.databasePlatform}</prop> 
+            </props> 
+        </property> 
+    </bean>
+    
+<!--    <bean id="dataSource"
+          class="org.springframework.jdbc.datasource.DriverManagerDataSource">
+        <property name="driverClassName" value="${db.driver}" />
+        <property name="url" value="${db.url}" />
+        <property name="username" value="${db.username}" />
+        <property name="password" value="${db.password}" />
+    </bean>-->
+    <bean id="postgreDataSource"
+          class="org.springframework.jdbc.datasource.DriverManagerDataSource">
+        <property name="driverClassName" value="${p.db.driver}" />
+        <property name="url" value="${p.db.url}" />
+        <property name="username" value="${p.db.username}" />
+        <property name="password" value="${p.db.password}" />
+    </bean>
+    <!-- ;INIT=runscript from 'classpath:/sqlcreate.sql'\;runscript from 'classpath:populate.sql' -->
+
+<!--    <bean id="transactionManager" class="org.springframework.orm.jpa.JpaTransactionManager">
+        <property name="entityManagerFactory" ref="entityManager" />
+    </bean>-->
+    <bean id="transactionManager" class="org.springframework.orm.jpa.JpaTransactionManager">
+        <property name="entityManagerFactory" ref="postgreEntityManager" />
+    </bean>
+
+    <!-- Scan for transaction-based resources -->
+    <context:component-scan base-package="edu.mum.soaserver.serviceimpl" />
+    <context:component-scan base-package="edu.mum.soaserver.model" />
+    <context:component-scan base-package="edu.mum.soaserver.repository" />
+
+    <!--<tx:annotation-driven transaction-manager="transactionManager" />-->
+    <tx:annotation-driven transaction-manager="transactionManager" />
+
+    <bean id="persistenceExceptionTranslationPostProcessor"
+          class="org.springframework.dao.annotation.PersistenceExceptionTranslationPostProcessor" />
+	
+</beans>
